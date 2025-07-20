@@ -16,8 +16,8 @@ function App() {
   const formRef = useRef<HTMLFormElement>(null);
  
 
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault()
+  function handleSubmit(evt: FormEvent<HTMLFormElement>) {
+    evt.preventDefault()
 
     const formData = new FormData(formRef.current!)
     const data = Object.fromEntries(formData.entries()) as FormValues;
@@ -29,7 +29,7 @@ function App() {
     <div className='bg-neutral-600 text-neutral-50 m-6 p-4 flex flex-col gap-4 rounded-lg'>
       <h1 className='text-2xl font-bold w-full'>Teste Técnico Frontend</h1>
 
-      <form  className='w-full flex gap-4' ref={formRef} onSubmit={handleSubmit}>
+      <form className='w-full flex gap-4' ref={formRef} onSubmit={handleSubmit}>
         <Input name='nome' required placeholder='Nome'/>
         <InputMoney name='preco' required placeholder='Preço'/>
         <Input name='sku' required placeholder='SKU'/>
@@ -37,13 +37,13 @@ function App() {
       </form>
 
       {hasProduct && <div className='rounded border border-neutral-50 p-4'>
-        {products.map(product => (
-          <div className='flex flex-col'>
+        {products!.map(product => (
+          <div key={product.sku} className='flex flex-col'>
             <div className='flex justify-between items-center h-12'>
-              <span>{product.data.nome}</span>
-              <span>{product.data.preco}</span>
-              <span>{product.data.sku}</span>
-              <Button type='button' onClick={() => removeProduct(product.data.sku)}>Excluir</Button>
+              <span>{product.nome}</span>
+              <span>{product.preco}</span>
+              <span>{product.sku}</span>
+              <Button type='button' onClick={() => removeProduct(product.sku)}>Excluir</Button>
             </div>
           </div>
         ))}

@@ -1,24 +1,41 @@
-import axios from 'axios'
+/**
+ * Avaliador aqui poderia muito bem ser um request para uma API, mas estou usando um mock local
+ */
 import type { Product } from '../type'
 
-type ProductWithExternalId = {
-  id: string,
-  data: Product
+const keyLocalStorage = 'products'
+
+function setProductsLocalStorage(products: Product[]) {
+  localStorage.setItem(keyLocalStorage, JSON.stringify(products))
 }
 
-const url = "http://localhost:3000"
+function getProductsLocalStorage(): Product[] {
+  const stringValue = localStorage.getItem(keyLocalStorage)
+  return stringValue ? JSON.parse(stringValue) : []
+}
+
+function requestMock(callback: any) {
+  return new Promise((resolve) => {
+    resolve(callback?.())
+  })
+} 
 
 export async function postProducts(product: Product) {
-  const response = await axios.post<any, ProductWithExternalId>(`${url}/products`, { data: product })
-  return response
+  return requestMock(() => {
+    const newProducts = getProductsLocalStorage()
+    newProducts.push(product)
+    setProductsLocalStorage(newProducts)
+  })
 }
 
-export async function getProducts(): Promise<ProductWithExternalId[]> {
-  const response = await axios.get<any, ProductWithExternalId[]>(`${url}/products`)
-  return response
+export async function getProducts(): Promise<Product[]> {
+  return requestMock(getProductsLocalStorage) as Promise<Product[]>
 }
 
-export async function deleteProduct(id: string) {
-  const response = await axios.delete(`${url}/products/${id}`)
-  return response
+export async function deleteProduct(sku: string) {
+  return requestMock(() => {
+    const products = getProductsLocalStorage()
+    const newProducts = products.filter(item => item.sku !== sku)
+    setProductsLocalStorage(newProducts)
+  })
 }
