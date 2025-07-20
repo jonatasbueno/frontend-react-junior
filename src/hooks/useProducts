@@ -1,0 +1,40 @@
+import { useEffect, useState } from "react"
+import { getProducts, deleteProduct, postProducts } from '../services/ProdutoService'
+
+type Product = {
+  nome: string,
+  preço: number,
+  sku: string
+}
+
+export function useProducts() {
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    getProducts()
+      .then(itens => setProducts(itens))
+  }, [products])
+
+  function addProduct(product: Product) {
+    postProducts(product)
+      .then(() => {
+        const newList = [...products]
+        newList.push(product)
+        setProducts(newList)
+      })
+  }
+
+  function removeProduct({ sku}: { sku: string }) {
+    deleteProduct(sku)
+      .then(() => {
+        const newList = products.filter(item => item.sku !== sku)
+        setProducts(newList)
+      })
+  }
+
+  return {
+    products,
+    addProduct,
+    removeProduct    
+  }
+}
